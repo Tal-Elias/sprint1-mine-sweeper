@@ -8,14 +8,30 @@
     <title>MineSweeper</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body onload="onInit()">
 
+<body onload="onInit()">
     <h1>Mine Sweeper</h1>
-    <button class="reset" onclick="onInit()">😊</button>
+    <button class="reset" onclick="location.reload()">😊</button>
+    <div class="levels">
+        <button class="level" onclick="chooseLevel(4)">Easy</button>
+        <button class="level" onclick="chooseLevel(8)">Medium</button>
+        <button class="level" onclick="chooseLevel(12)">Expert</button>
+    </div>
+    <div class="score-container">
+    <div class="timer">Timer: <span>0.000</span></div>
+    <div class="lives">Lives: <span></span></div>
+    <div class="count">Count: <span></span></div>
+    </div>
     <table class="board-container">
         <tbody class="board"></tbody>
     </table>
-    
+
+    <script src="js/util.js"></script>
     <script src="js/main.js"></script>
 </body>
+
+<footer>
+    <span>Tal Elias©</span>
+</footer>
+
 </html>
