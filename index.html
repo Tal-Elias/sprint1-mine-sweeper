@@ -11,14 +11,14 @@
 
 <body onload="onInit()">
     <h1>Mine Sweeper</h1>
-    <button class="reset" onclick="location.reload()">😊</button>
+    <button class="reset" onclick="onInit()">😊</button>
     <div class="levels">
         <button class="level" onclick="chooseLevel(4)">Easy</button>
         <button class="level" onclick="chooseLevel(8)">Medium</button>
         <button class="level" onclick="chooseLevel(12)">Expert</button>
     </div>
     <div class="score-container">
-        <div class="timer">Timer: <span>00</span></div>
+        <div class="timer">Timer: <span>00</span><span>s</span></div>
         <div class="lives">Lives: <span></span></div>
         <div class="count">Count: <span></span></div>
     </div>
