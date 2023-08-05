@@ -17,7 +17,6 @@ h1 {
     margin-left: auto;
     margin-right: auto;
     border-spacing: 1px;
-    /* margin-bottom: 100px; */
 }
 
 .cell {
@@ -92,6 +91,11 @@ h1 {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px
+}
+
+.hint {
+    margin-left: 5px;
+    font-size: 15px;
 }
 
 .timer,

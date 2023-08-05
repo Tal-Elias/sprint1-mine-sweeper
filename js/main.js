@@ -9,6 +9,8 @@ var gTimerIntervalId
 var gStartTime
 var gRevealedMines
 var gIsFirstClick
+var gHints
+var gIsHint
 
 var gLevel = {
     SIZE: 4,
@@ -29,6 +31,8 @@ function onInit() {
     gGame.markedCount = 0
     gRevealedMines = 0
     gIsFirstClick = true
+    gIsHint = false
+    gHints = 3
 
     resetTimer()
     gBoard = buildBoard()
@@ -37,6 +41,7 @@ function onInit() {
 
     document.querySelector('.reset').innerText = '😊'
     document.querySelector('.lives span').innerText = gLevel.LIVES
+    document.querySelector('.hint span').innerText = 3
 }
 
 function buildBoard() {
@@ -56,8 +61,6 @@ function buildBoard() {
             gEmptyCells.push(cell)
         }
     }
-    // board[3][3].isMine = true
-    // board[1][1].isMine = true
     return board
 }
 
@@ -66,7 +69,6 @@ function renderBoard(board) {
     for (var i = 0; i < board.length; i++) {
         strHTML += `<tr>`
         for (var j = 0; j < board[0].length; j++) {
-            // const cell = board[i][j]
             var className = `cell cell-${i}-${j}`
             strHTML += `<td class="${className}"
                             onclick="onCellClicked(this, ${i}, ${j})">
@@ -121,6 +123,28 @@ function expandShown(board, rowIdx, colIdx) {
     }
 }
 
+function expandShownHint(board, rowIdx, colIdx) {
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (i === rowIdx && j === colIdx) continue
+            if (j < 0 || j >= board[0].length) continue
+            var currCell = board[i][j]
+            if (!currCell.isShown && !currCell.isMarked && !currCell.isMine) {
+                const elCell = document.querySelector(`.cell-${i}-${j}`)
+                elCell.innerText = (!currCell.minesAroundCount) ? '' : currCell.minesAroundCount
+                setTimeout(() => {
+                    var className = `cell cell-${i}-${j}`
+                    elCell.innerHTML = `<td class="${className}"
+                    onclick="onCellClicked(this, ${i}, ${j})">
+                    <button oncontextmenu="onCellMarked(this, ${i}, ${j}),
+                    onContextMenu(event)"></button></td>`
+                }, 1000);
+            }
+        }
+    }
+}
+
 function onCellClicked(elCell, i, j) {
     var cell = gBoard[i][j]
     if (!gGame.isOn || cell.isMarked || cell.isShown) return
@@ -132,11 +156,16 @@ function onCellClicked(elCell, i, j) {
     }
     cell.isShown = true
     gGame.showCount++
-    if (!cell.isMine && cell.minesAroundCount === 0) {
+    if (!cell.isMine && !gIsHint && cell.minesAroundCount === 0) {
         expandShown(gBoard, i, j)
         elCell.innerText = ''
     } else {
         elCell.innerText = cell.minesAroundCount
+    }
+    if (!cell.isMine && gIsHint) {
+        document.querySelector('.hint span').innerText--
+        expandShownHint(gBoard, i, j);
+        gIsHint = false
     }
     if (cell.isMine) {
         elCell.innerText = MINE
@@ -253,4 +282,13 @@ function resetTimer() {
     clearInterval(gTimerIntervalId)
     const elTimer = document.querySelector('.timer span')
     elTimer.innerText = '00'
+}
+
+function isHintCount() {
+    if (!gHints) return
+    if (!gIsHint) {
+        gIsHint = true
+        console.log(gIsHint);
+        gHints--
+    }
 }
