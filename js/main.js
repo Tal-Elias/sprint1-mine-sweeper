@@ -8,7 +8,7 @@ var gEmptyCells
 var gTimerIntervalId
 var gStartTime
 var gRevealedMines
-// var gIsFirstClick
+var gIsFirstClick
 
 var gLevel = {
     SIZE: 4,
@@ -28,13 +28,12 @@ function onInit() {
     gGame.showCount = 0
     gGame.markedCount = 0
     gRevealedMines = 0
-    // gIsFirstClick = true
+    gIsFirstClick = true
 
     resetTimer()
     gBoard = buildBoard()
     renderBoard(gBoard)
     markedCounter()
-    placeMinesOnBoard(gLevel.MINES)
 
     document.querySelector('.reset').innerText = '😊'
     document.querySelector('.lives span').innerText = gLevel.LIVES
@@ -51,7 +50,7 @@ function buildBoard() {
                 isShown: false,
                 isMine: false,
                 isMarked: false,
-                // position: { i, j }
+                pos: { i, j }
             }
             board[i][j] = cell
             gEmptyCells.push(cell)
@@ -114,6 +113,9 @@ function expandShown(board, rowIdx, colIdx) {
                 gGame.showCount++
                 const elCell = document.querySelector(`.cell-${i}-${j}`)
                 elCell.innerText = (!currCell.minesAroundCount) ? '' : currCell.minesAroundCount
+                if (currCell.minesAroundCount === 0) {
+                    expandShown(board, i, j)
+                }
             }
         }
     }
@@ -122,10 +124,14 @@ function expandShown(board, rowIdx, colIdx) {
 function onCellClicked(elCell, i, j) {
     var cell = gBoard[i][j]
     if (!gGame.isOn || cell.isMarked || cell.isShown) return
-    minesAroundCell()
+    if (gIsFirstClick) {
+        placeMinesOnBoard(gLevel.MINES, i, j)
+        minesAroundCell()
+        startTimer()
+        gIsFirstClick = false
+    }
     cell.isShown = true
     gGame.showCount++
-    if (gGame.showCount === 1) startTimer()
     if (!cell.isMine && cell.minesAroundCount === 0) {
         expandShown(gBoard, i, j)
         elCell.innerText = ''
@@ -160,12 +166,22 @@ function onCellMarked(elCell, i, j) {
     checkGameOver()
 }
 
-function placeMinesOnBoard(gNumOfMines, isFirstClick) {
+function placeMinesOnBoard(gNumOfMines, clickedRow, clickedCol) {
+    var clickedCell
+    for (var idx = 0; idx < gEmptyCells.length; idx++) {
+        if (gEmptyCells[idx].pos.i === clickedRow &&
+            gEmptyCells[idx].pos.j === clickedCol) {
+            clickedCell = idx
+            break
+        }
+    }
+    var safeCell = gEmptyCells.splice(clickedCell, 1)[0]
     for (var i = 0; i < gNumOfMines; i++) {
         var randomEmptyIdx = getRandomInt(0, gEmptyCells.length - 1)
         var randomEmptyCell = gEmptyCells.splice(randomEmptyIdx, 1)[0]
         randomEmptyCell.isMine = true
     }
+    gEmptyCells.splice(clickedCell, 0, safeCell)
 }
 
 function checkGameOver() {
